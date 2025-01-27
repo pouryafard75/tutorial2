@@ -19,3 +19,14 @@ jobs:
           channel: stable
           flutter-version: 3.19.0
 
+      - name: Pub dependencies
+        run:  flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Formatting
+        run:  dart format --set-exit-if-changed ./
+
+
+

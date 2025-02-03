@@ -1,0 +1,6 @@
+appId: com.example.tutorial2
+---
+- launchApp
+- assertVisible: 0
+- tapOn: ".*+.*"
+- assertVisible: 1

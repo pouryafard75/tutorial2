@@ -8,27 +8,7 @@ on :
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        flutter_channel : [stable, beta]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: ${{matrix.flutter_channel}}
-
-      - name: Pub dependencies
-        run:  flutter pub get
-
-      - name: Analyze
-        run: flutter analyze
-
-  test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,16 +19,38 @@ jobs:
           channel: stable
 
       - name: Pub dependencies
-        run: flutter pub get
+        run:  flutter pub get
 
-      - name: Formatting
-        run: dart format --set-exit-if-changed ./
+      - name: Analyze
+        run: flutter analyze
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [build, test]
-    steps:
-      - name: Deploy
-        run: echo "Deploy"
+      - name : Launch Simulator
+        id : sim
+        uses: futureware-tech/simulator-action@v4
+
+      - name: Install the application
+        run : | 
+          flutter run -d ${{steps.sim.outputs.udid}} &
+          while ! xcrun simctl get_app_container booted com.example.tutorial2; do
+            sleep 5
+          done;
+  
+
+      - name: Install Meastro
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+
+      - name: Maestro test
+        run: maestro record maestro/test.yml --local test.mp4
+
+      - name: Upload Test Video
+        uses : actions/upload-artifact@v4
+        with:
+          name: test-video
+          path : test.mp4
+
+
+
+
+
 
 

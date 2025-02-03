@@ -30,9 +30,6 @@ jobs:
       - name: Launch iOS Simulator
         id: sim
         uses: futureware-tech/simulator-action@v4
-        with:
-          device: 'iPhone 15'
-          runtime: '18.2'
 
       - name: Print Sim id
         run: echo ${{steps.sim.outputs.udid}}

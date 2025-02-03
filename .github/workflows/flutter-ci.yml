@@ -28,7 +28,7 @@ jobs:
         run: flutter analyze
 
       - name: Launch iOS Simulator
-      - id: sim
+        id: sim
         uses: futureware-tech/simulator-action@v4
         with:
           device: 'iPhone 15'

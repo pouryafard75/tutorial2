@@ -38,7 +38,11 @@ jobs:
         run: echo ${{steps.sim.outputs.udid}}
       
       - name: Install the App
-        run : flutter run -d ${{steps.sim.outputs.udid}}
+        run : | 
+          flutter run -d ${{steps.sim.outputs.udid}} &
+          while ! xcrun simctl get_app_container booted com.example.tutorial2 data >/dev/null 2>&1; do
+            sleep 5
+          done
 
       - name: Install Maestro
         run: |

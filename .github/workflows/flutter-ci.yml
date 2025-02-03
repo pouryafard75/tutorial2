@@ -37,9 +37,15 @@ jobs:
   
 
       - name: Install Meastro
-        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+
+        run: |
+          export MAESTRO_VERSION=1.39.9
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin >> $GITHUB_PATH
 
       - name: Maestro test
+        env:
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 360000
         run: maestro record maestro/test.yml --local test.mp4
 
       - name: Upload Test Video

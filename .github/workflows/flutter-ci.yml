@@ -9,9 +9,9 @@ on :
 jobs:
   build:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        flutter_channel : [stable, beta]
+    # strategy:
+    #   matrix:
+    #     flutter_channel : [stable, beta]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
 
       - name: Maestro test flow with recording
         run:  maestro record maestro/test.yml --local test.mp4
-        
+
 
       - name: Upload Test Video
         uses: actions/upload-artifact@v4

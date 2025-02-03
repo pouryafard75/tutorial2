@@ -47,4 +47,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-video
-          path: test-results.mp4
+          path: test.mp4

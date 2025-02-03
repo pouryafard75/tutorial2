@@ -8,7 +8,7 @@ on :
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         flutter_channel : [stable, beta]
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: ${{matrix.flutter_channel}}
+          channel: stable
 
       - name: Pub dependencies
         run:  flutter pub get
@@ -27,28 +27,24 @@ jobs:
       - name: Analyze
         run: flutter analyze
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - name: Launch iOS Simulator
+        uses: futureware-tech/simulator-action@v4
         with:
-          channel: stable
+          device: 'iPhone 15'
+          runtime: '18.2'
 
-      - name: Pub dependencies
-        run: flutter pub get
+      - name: Install Maestro
+        run: |
+          export MAESTRO_VERSION=1.39.9
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
-      - name: Formatting
-        run: dart format --set-exit-if-changed ./
+      - name: Maestro test flow with recording
+        run:  maestro record maestro/test.yml --local test.mp4
+        
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [build, test]
-    steps:
-      - name: Deploy
-        run: echo "Deploy"
-
-
+      - name: Upload Test Video
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-video
+          path: test-results.mp4

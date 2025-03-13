@@ -63,8 +63,4 @@ jobs:
 
       # Run E2E tests using Maestro
       - name: Run Maestro Tests
-        run: maestro test path/to/your-maestro-tests
-
-      # Run E2E tests using Maestro
-      - name: Run Maestro Tests
         run: maestro test meastro

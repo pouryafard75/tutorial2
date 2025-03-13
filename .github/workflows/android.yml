@@ -44,6 +44,11 @@ jobs:
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
+      # Build the Flutter app APK
+      - name: Build Flutter APK
+        run: |
+          flutter build apk --release
+          
       # Start Android Emulator
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -54,6 +59,7 @@ jobs:
           disable-animations: true
           script: |
             adb wait-for-device
-            adb shell input keyevent 82  # Unlock screen
-            adb devices  # Verify emulator is running
+            adb shell input keyevent 82
+            adb devices
+            adb install build/app/outputs/flutter-apk/app-release.apk
             maestro test maestro

@@ -1,7 +1,7 @@
 name: E2E Tests with Maestro
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   e2e-test:
@@ -11,37 +11,47 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17.x"
+          distribution: "temurin"
+          cache: gradle
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: '3.24.3'
+          channel: "stable"
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build Android Debug APK
-        run: flutter build apk --debug
+      # Set up Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Install Maestro
-        run: curl -Ls "https://get.maestro.mobile.dev" | bash
-
+      # Start Android Emulator
       - name: Start Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30  # Use API level 30 (Android 11)
+          target: google_apis
+          arch: x86_64
+          profile: pixel_4
+          disable-animations: true
+          script: echo "Android Emulator is ready"
+
+      # Install Maestro CLI
+      - name: Install Maestro
         run: |
-          echo "Starting Android Emulator..."
-          nohup $ANDROID_HOME/emulator/emulator -avd emulator -no-audio -no-window -gpu swiftshader_indirect &
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
-      - name: Wait for Emulator to Boot
-        run: |
-          echo "Waiting for emulator to start..."
-          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
-          adb devices
+      # Verify Maestro installation
+      - name: Verify Maestro Installation
+        run: maestro --version
 
-      - name: Install APK on Emulator
-        run: adb install app/build/outputs/flutter-apk/app-debug.apk
-
+      # Run E2E tests using Maestro
       - name: Run Maestro Tests
-        run: maestro test flows/
-
-      - name: Stop Emulator (Cleanup)
-        if: always()
-        run: adb emu kill
+        run: maestro test path/to/your-maestro-tests

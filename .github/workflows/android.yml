@@ -38,6 +38,12 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # Install Maestro CLI
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
       # Start Android Emulator
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -50,20 +56,4 @@ jobs:
             adb wait-for-device
             adb shell input keyevent 82  # Unlock screen
             adb devices  # Verify emulator is running
-
-      # Install Maestro CLI
-      - name: Install Maestro
-        run: |
-          curl -Ls "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
-
-      # Verify Maestro installation
-      - name: Verify Maestro Installation
-        run: maestro --version
-
-      - name: Verify ADB Devices
-        run: adb devices
-
-      # Run E2E tests using Maestro
-      - name: Run Maestro Tests
-        run: maestro test maestro
+            maestro test maestro

@@ -1,0 +1,47 @@
+name: E2E Tests with Maestro
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  e2e-test:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android Debug APK
+        run: flutter build apk --debug
+
+      - name: Install Maestro
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+
+      - name: Start Android Emulator
+        run: |
+          echo "Starting Android Emulator..."
+          nohup $ANDROID_HOME/emulator/emulator -avd emulator -no-audio -no-window -gpu swiftshader_indirect &
+
+      - name: Wait for Emulator to Boot
+        run: |
+          echo "Waiting for emulator to start..."
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
+          adb devices
+
+      - name: Install APK on Emulator
+        run: adb install app/build/outputs/flutter-apk/app-debug.apk
+
+      - name: Run Maestro Tests
+        run: maestro test flows/
+
+      - name: Stop Emulator (Cleanup)
+        if: always()
+        run: adb emu kill

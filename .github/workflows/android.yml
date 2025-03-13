@@ -61,6 +61,9 @@ jobs:
       - name: Verify Maestro Installation
         run: maestro --version
 
+      - name: Verify ADB Devices
+        run: adb devices
+
       # Run E2E tests using Maestro
       - name: Run Maestro Tests
         run: maestro test maestro

@@ -31,16 +31,25 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      # Enable KVM for better emulator performance
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
       # Start Android Emulator
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30  # Use API level 30 (Android 11)
-          target: google_apis
+          api-level: 29  # API level 29 (Android 10) for compatibility
           arch: x86_64
           profile: pixel_4
           disable-animations: true
-          script: echo "Android Emulator is ready"
+          script: |
+            adb wait-for-device
+            adb shell input keyevent 82  # Unlock screen
+            adb devices  # Verify emulator is running
 
       # Install Maestro CLI
       - name: Install Maestro
@@ -55,3 +64,7 @@ jobs:
       # Run E2E tests using Maestro
       - name: Run Maestro Tests
         run: maestro test path/to/your-maestro-tests
+
+      # Run E2E tests using Maestro
+      - name: Run Maestro Tests
+        run: maestro test meastro
